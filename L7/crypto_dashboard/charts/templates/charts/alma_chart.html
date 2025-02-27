@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALMA Visualization</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>ALMA Visualization</h1>
+    <canvas id="almaChart" width="400" height="200"></canvas>
+    <script>
+        var prices = JSON.parse('{{ prices|safe }}');
+        var alma_values = JSON.parse('{{ alma_values|safe }}');
+    
+        var ctx = document.getElementById('almaChart').getContext('2d');
+        var almaChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: Array.from({length: prices.length}, (_, i) => i + 1),
+                datasets: [{
+                    label: 'Bitcoin Price',
+                    data: prices,
+                    borderColor: 'blue',
+                    fill: false
+                }, {
+                    label: 'ALMA',
+                    data: alma_values,
+                    borderColor: 'orange',
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Time'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Value'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+    
+</body>
+</html>

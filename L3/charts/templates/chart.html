@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Hourly OHLCV Chart</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h2>Bitcoin Hourly OHLCV (Last 7 Days)</h2>
+    <canvas id="ohlcvChart"></canvas>
+
+    <script>
+        async function fetchData() {
+            const response = await fetch("/get_chart_data/");
+            const data = await response.json();
+            return data.ohlcv;
+        }
+
+        async function createChart() {
+            const ohlcvData = await fetchData();
+            const labels = ohlcvData.map(item => item.timestamp);
+            const closePrices = ohlcvData.map(item => item.close);
+            const volumes = ohlcvData.map(item => item.volume);
+
+            const ctx = document.getElementById("ohlcvChart").getContext("2d");
+            new Chart(ctx, {
+                type: "line",
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: "Closing Price (USD)",
+                        data: closePrices,
+                        borderColor: "blue",
+                        borderWidth: 1,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true
+                }
+            });
+        }
+
+        createChart();
+    </script>
+</body>
+</html>

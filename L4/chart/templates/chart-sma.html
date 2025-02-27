@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Hourly OHLCV Chart</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        #ohlcvChart {
+            width: 100%;
+            height: 400px;  /* Set a fixed height */
+        }
+    </style>
+</head>
+<body>
+    <h2>Bitcoin Moving Average (Last 7 Days)</h2>
+    <canvas id="ohlcvChart"></canvas>
+
+    <script>
+        fetch("/get_moving_average_chart_data/")
+          .then(response => response.json())
+          .then(data => {
+            console.log("Received Data:", data);  // Debugging
+        
+            if (!data.ohlcv || data.ohlcv.length === 0) {
+              console.error("No OHLCV data received.");
+              return;
+            }
+        
+            const labels = data.ohlcv.map(item => item.timestamp); 
+            const prices = data.ohlcv.map(item => item.close);
+            const sma10 = data.ohlcv.map(item => item.SMA_10);
+            const sma30 = data.ohlcv.map(item => item.SMA_30);
+            const alma9 = data.ohlcv.map(item => item.ALMA_9);  // Adding ALMA data
+        
+            console.log("Labels:", labels);  // Debugging
+
+            // Create chart
+            const ctx = document.getElementById('ohlcvChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Price',
+                            data: prices,
+                            borderColor: 'rgb(75, 192, 192)',
+                            fill: false,
+                        },
+                        {
+                            label: 'SMA 10',
+                            data: sma10,
+                            borderColor: 'rgb(255, 99, 132)',
+                            fill: false,
+                        },
+                        {
+                            label: 'SMA 30',
+                            data: sma30,
+                            borderColor: 'rgb(54, 162, 235)',
+                            fill: false,
+                        },
+                        {
+                          label: 'ALMA',
+                          data: alma9,
+                          borderColor: 'rgb(39, 159, 6)',
+                          fill: false,
+                      }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                        },
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Timestamp'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Price (USD)'
+                            }
+                        }
+                    }
+                }
+            });
+          })
+          .catch(error => console.error("Error fetching data:", error));
+    </script>
+</body>
+</html>
